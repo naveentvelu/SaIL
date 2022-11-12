@@ -83,7 +83,7 @@ class TrainPlanner(SaILPlanner):
             self.depth_so_far[neighbor] = self.depth_so_far[curr_node] + 1
           #If neighbor is goal, then end search
           if neighbor == self.goal_node: 
-            print "Found goal"
+            print("Found goal")
             found_goal = True
             break
           #append to frontiers
@@ -168,7 +168,7 @@ class TestPlanner(SaILPlanner):
             self.depth_so_far[neighbor] = self.depth_so_far[curr_node] + 1
           #If neighbor is goal, then end search
           if neighbor == self.goal_node: 
-            print "Found goal"
+            print ("Found goal")
             found_goal = True
             break
           #append to frontier

@@ -122,7 +122,7 @@ class StateLatticePlannerEnv(SearchBasedPlanner):
 
       #Check 3: Stop search if goal found
       if curr_node == self.goal_node:  
-        print "Found goal"
+        print ("Found goal")
         found_goal = True
         break
       

@@ -36,7 +36,9 @@ class SupervisedRegressionNetwork():
       global tf
       global tflearn
       # import matplotlib.pyplot as plt
-      import tensorflow as tf 
+      # import tensorflow as tf
+      import tensorflow.compat.v1 as tf
+      tf.disable_v2_behavior()
       import tflearn
       config = tf.ConfigProto()
       config.allow_soft_placement=True
@@ -82,11 +84,11 @@ class SupervisedRegressionNetwork():
   def train(self, database):
     #Shuffle the database
     # random.shuffle(database)
-    for epoch in xrange(self.training_epochs):
+    for epoch in range(self.training_epochs):
       random.shuffle(database)
       avg_cost = 0.
       total_batch = int(len(database)/self.batch_size)
-      for i in xrange(total_batch):
+      for i in range(total_batch):
         batch_x, batch_y = self.get_next_batch(database, i)
         #Run optimization op(backprop) and cost op(to get loss value)
         _, c = self.sess.run([self.graph_ops['train_net'], self.graph_ops['cost']],\
@@ -96,8 +98,8 @@ class SupervisedRegressionNetwork():
         avg_cost+= c/total_batch
       #Display logs per epoch
       if epoch%self.display_step == 0:
-        print "epoch:", '%04d' % (epoch+1), "cost=", \
-              "{:.9f}".format(np.sqrt(avg_cost))
+        print ("epoch:", '%04d' % (epoch+1), "cost=", \
+              "{:.9f}".format(np.sqrt(avg_cost)))
     print('optimization finished!')
     return np.sqrt(avg_cost)
 

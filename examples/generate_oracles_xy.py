@@ -44,7 +44,7 @@ prob = PlanningProblem(prob_params)
 
 def get_json_dict(d):
   new_d = dict()
-  for key, v in d.iteritems():
+  for key, v in d.items():
     n_k = str(key)
     new_d[n_k] = v
   return new_d

@@ -150,8 +150,8 @@ class SupervisedRegressionNetwork():
         avg_cost+= c/total_batch
       #Display logs per epoch
       if epoch%self.display_step == 0:
-        print "epoch:", '%04d' % (epoch+1), "cost=", \
-              "{:.9f}".format(np.sqrt(avg_cost))
+        print ("epoch:", '%04d' % (epoch+1), "cost=", \
+              "{:.9f}".format(np.sqrt(avg_cost)))
     print('optimization finished!')
 
 
