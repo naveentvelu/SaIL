@@ -18,7 +18,8 @@ ORACLE_FOLDER_6="../SaIL/oracle/saved_oracles/xy/multiple_bugtraps/validation/"
 ORACLE_FOLDER_7="../SaIL/oracle/saved_oracles/xy/shifting_gaps/validation/"
 ORACLE_FOLDER_8="../SaIL/oracle/saved_oracles/xy/single_bugtrap/validation/"
 
-MODEL_FILE_1="../SaIL/learners/trained_models/xy/alternating_gaps/200_70" #iter_7_features_17_num_train_envs_200_num_valid_envs_70"
+# MODEL_FILE_1="../SaIL/learners/trained_models/xy/alternating_gaps/200_70" #iter_7_features_17_num_train_envs_200_num_valid_envs_70"
+MODEL_FILE_1="../SaIL/learners/trained_models/xy/alternating_gaps/train_iter_1_features_17_num_train_envs_20_num_valid_envs_20" # Naveen Change
 MODEL_FILE_2="../SaIL/learners/trained_models/xy/bugtrap_forest/"
 MODEL_FILE_3="../SaIL/learners/trained_models/xy/forest/200_50"
 MODEL_FILE_4="../SaIL/learners/trained_models/xy/gaps_and_forest/iter_5_features_17_num_train_envs_200_num_valid_envs_70"
@@ -36,11 +37,11 @@ RESULTS_FOLDER_6="../SaIL/results/xy/multiple_bugtraps/"
 RESULTS_FOLDER_7="../SaIL/results/xy/shifting_gaps/"
 RESULTS_FOLDER_8="../SaIL/results/xy/single_bugtrap/"
 
-NUM_ENVS=10
+NUM_ENVS=20
 TEST_FILE_START_NUM=800
 ORACLE_FILE_TYPE="json"
+FOLDER_INDEX=1
 
 
-
-python sail_xy_test.py --test_folders ${TEST_FOLDER_5} --test_oracle_folders ${ORACLE_FOLDER_5} --model_files ${MODEL_FILE_5} --result_folders ${RESULTS_FOLDER_5} --num_envs ${NUM_ENVS} --test_file_start_num ${TEST_FILE_START_NUM} --oracle_file_type ${ORACLE_FILE_TYPE} # --visualize 
+python sail_xy_test.py --test_folders ${TEST_FOLDER_1} --test_oracle_folders ${ORACLE_FOLDER_1} --model_files ${MODEL_FILE_1} --result_folders ${RESULTS_FOLDER_1} --num_envs ${NUM_ENVS} --test_file_start_num ${TEST_FILE_START_NUM} --oracle_file_type ${ORACLE_FILE_TYPE} # --visualize 
 

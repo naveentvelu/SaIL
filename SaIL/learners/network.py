@@ -50,6 +50,7 @@ class SupervisedRegressionNetwork():
 
       self.sess.run(self.init_op)
       self.initialized=True
+      print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
       print('network created and initialized')
 
   def create_network(self):

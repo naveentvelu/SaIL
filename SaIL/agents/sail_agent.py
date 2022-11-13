@@ -84,11 +84,11 @@ class SaILAgent():
         self.oracle.initialize(curr_oracle_file) 
         self.prob.initialize(self.e, self.lattice, self.cost_fn, self.heuristic_fn, self.start_n, self.goal_n, visualize= visualize_train) 
         self.train_planner.initialize(self.prob)
-        try:
-          path, path_cost, curr_expansions, plan_time, _, _, _, dataset = self.train_planner.plan(self.oracle, curr_beta, self.k, self.T)
-          agg_dataset += dataset #add data to meta dataset
-        except ValueError:
-          continue
+        # try:
+        path, path_cost, curr_expansions, plan_time, _, _, _, dataset = self.train_planner.plan(self.oracle, curr_beta, self.k, self.T)
+        agg_dataset += dataset #add data to meta dataset
+        # except ValueError:
+        #   continue
         self.train_planner.clear_planner()
         self.e.clear()
         self.oracle.clear()

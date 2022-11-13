@@ -51,11 +51,11 @@ learner_params['display_step'] = 1
 sail_params = dict()
 sail_params['beta0'] = 0        #Initial beta (after iter 0)
 sail_params['k']     = 60       #Number of datapoints to collect per environment
-sail_params['N']     = 10       #number of SaIL iterations
+sail_params['N']     = 1       #number of SaIL iterations
 sail_params['T']     = 6000     #max episode length for training
 sail_params['Tv']    = 20000    #episode length for validation/testing
-sail_params['m']     = 200      #Number of training envs
-sail_params['mv']    = 70       #Number of validation envs
+sail_params['m']     = 2      #Number of training envs
+sail_params['mv']    = 1       #Number of validation envs
 
 
 def run_training(train_folder, train_oracle_folder, validation_folder, validation_oracle_folder, model_folder, results_folder, file_start_num_train, file_start_num_valid, pretrained_model, oracle_file_type):
