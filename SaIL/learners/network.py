@@ -132,7 +132,9 @@ class SupervisedRegressionNetwork():
     return self.graph_ops['network_params']
 
   def set_params(self, input_params):
-    [self.graph_ops['network_params'].assign(input_params[i]) for i in range(len(input_params))]
+    assign_ops = [self.graph_ops['network_params'][i].assign(input_params[i]) for i in range(len(input_params))]
+    for assign_op in assign_ops:
+      self.sess.run(assign_op)
     
 
   def get_next_batch(self, database, i):
