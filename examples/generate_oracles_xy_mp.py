@@ -73,7 +73,7 @@ def generate_save_oracle(e, i, curr_env_file, file_start_num, file_type, env_nam
       json.dump(new_cost_so_far, fh, sort_keys=True)
   planner_local.clear_planner()
 
-def generate_oracles(database_folders=[], num_envs=1, file_start_num=0, file_type='json', num_pools):
+def generate_oracles(database_folders=[], num_envs=1, file_start_num=0, file_type='json', num_pools=4):
   global env_params, lattice_params, cost_fn, heuristic_fn, lattice, planner, start_n, goal_n, prob
   
   time_start = time.time()
