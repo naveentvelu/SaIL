@@ -73,7 +73,7 @@ def generate_save_oracle(e, i, curr_env_file, file_start_num, file_type, env_nam
       json.dump(new_cost_so_far, fh, sort_keys=True)
   planner_local.clear_planner()
 
-def generate_oracles(database_folders=[], num_envs=1, file_start_num=0, file_type='json'):
+def generate_oracles(database_folders=[], num_envs=1, file_start_num=0, file_type='json', num_pools=4):
   global env_params, lattice_params, cost_fn, heuristic_fn, lattice, planner, start_n, goal_n, prob
   
   time_start = time.time()
@@ -88,7 +88,7 @@ def generate_oracles(database_folders=[], num_envs=1, file_start_num=0, file_typ
       curr_env_file = os.path.join(os.path.abspath(folder), str(file_start_num + i)+'.png')
       args_list.append(tuple([e, i, curr_env_file, file_start_num, file_type, env_name, env_folder]))  
     
-    with Pool(10) as pool:
+    with Pool(num_pools) as pool:
         pool.starmap(generate_save_oracle, args_list)
 
   print("Time taken : ", time.time() - time_start)
@@ -99,6 +99,7 @@ if __name__ == "__main__":
   parser.add_argument('--num_envs', type=int)
   parser.add_argument('--file_start_num', type=int)
   parser.add_argument('--file_type', type=str)
+  parser.add_argument('--num_pools', type=int, default=4)
   args = parser.parse_args()
   #generate oracles and save results
-  generate_oracles(args.database_folders, args.num_envs, args.file_start_num, args.file_type)
+  generate_oracles(args.database_folders, args.num_envs, args.file_start_num, args.file_type, args.num_pools)

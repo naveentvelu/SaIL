@@ -67,12 +67,14 @@ class SupervisedRegressionNetwork():
         return self._to_numpy(out).item()
 
     def save_params(self, file_name):
-        torch.save(self.net.state_dict(), file_name)
-        print("Model saved in file: %s" % file_name)
+        weights_file_name = "{}.weights".format(file_name)
+        torch.save(self.net.state_dict(), weights_file_name)
+        print("Model saved in file: %s" % weights_file_name)
 
     def load_params(self, file_name):
-        self.net.load_state_dict(torch.load(file_name))
-        print('Weights loaded from file %s'%file_name)
+        weights_file_name = "{}.weights".format(file_name)
+        self.net.load_state_dict(torch.load(weights_file_name))
+        print('Weights loaded from file %s'%weights_file_name)
 
     def get_params(self):
         return [param for param in self.net.parameters(True)]
@@ -94,16 +96,16 @@ class SupervisedRegressionNetwork():
         batch = database[i*self.batch_size: (i+1)*self.batch_size]
         batch_x = np.array([_[0] for _ in batch])
         batch_y = np.array([_[1] for _ in batch])
-        new_shape_ip = [self.batch_size] + [self.output_size]
+        new_shape_ip = [self.batch_size] + [self.input_size]
         new_shape_op = [self.batch_size] + [self.output_size]
         batch_x = batch_x.reshape(new_shape_ip)  
         batch_y = batch_y.reshape(new_shape_op)
         return batch_x, batch_y
     
     def _single_pass(self, x, y):
-        out = self.net(x)
+        out = self.net(self._to_tensor(x))
         self.optimizer.zero_grad()
-        loss = self.loss_function(out, y)
+        loss = self.loss_function(out, self._to_tensor(y))
         loss.backward()
         self.optimizer.step()
         return loss.data.item()
