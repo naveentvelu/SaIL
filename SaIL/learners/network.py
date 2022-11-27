@@ -85,6 +85,8 @@ class SupervisedRegressionNetwork():
   def train(self, database):
     #Shuffle the database
     # random.shuffle(database)
+    epoch_loss_hist = []
+    avg_cost = 0
     for epoch in range(self.training_epochs):
       random.shuffle(database)
       avg_cost = 0.
@@ -98,11 +100,12 @@ class SupervisedRegressionNetwork():
         #Compute Average Loss
         avg_cost+= c/total_batch
       #Display logs per epoch
+      epoch_loss_hist.append(avg_cost)
       if epoch%self.display_step == 0:
         print ("epoch:", '%04d' % (epoch+1), "cost=", \
               "{:.9f}".format(np.sqrt(avg_cost)))
     print('optimization finished!')
-    return np.sqrt(avg_cost)
+    return np.sqrt(avg_cost), epoch_loss_hist
 
   def get_loss(self, features, label):
     features = features.reshape(self.input_shape)
