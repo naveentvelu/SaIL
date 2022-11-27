@@ -1,1 +1,1 @@
-from network import SupervisedRegressionNetwork
+from network_torch import SupervisedRegressionNetwork

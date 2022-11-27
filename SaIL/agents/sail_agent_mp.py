@@ -89,6 +89,7 @@ class SaILAgent():
     results['avg_path_cost_per_iter'] = []
     results['num_solved_per_iter'] = []
     results['dataset_size_per_iter'] = []
+    results['train_loss_hist'] = []
     agg_dataset = []
 
     min_expansions_so_far = np.inf #We will save the best performing learner
@@ -131,7 +132,7 @@ class SaILAgent():
       agg_dataset = [item for sublist in dataset for item in sublist]
       results['dataset_size_per_iter'].append(len(agg_dataset))
       print("Data aggregation : ", time.time() - train_start)
-      avg_loss_train = self.heuristic_fn.train(agg_dataset) #Regression loss in this iteration of training
+      avg_loss_train, train_loss_hist = self.heuristic_fn.train(agg_dataset) #Regression loss in this iteration of training
       print("Train Completed : ", time.time() - train_start)
       avg_path_cost, iter_expansions, avg_time_taken, num_solved, avg_loss_valid = self.run_validation(validation_folder, validation_oracle_folder, file_start_num_valid, visualize_validation, oracle_file_type) #True task loss on validation set
       
@@ -148,6 +149,7 @@ class SaILAgent():
       results['avg_expansions_per_iter'].append(iter_expansions)
       results['avg_time_per_iter'].append(avg_time_taken) 
       results['num_solved_per_iter'].append(num_solved)
+      results['train_loss_hist'].append(train_loss_hist)
 
     return results
 
