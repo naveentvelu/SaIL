@@ -41,7 +41,7 @@ cost_fn = PathLengthNoAng()
 learner_params = dict()
 learner_params['output_size'] = 1 #regression
 learner_params['input_size'] = 17 #number of features
-learner_params['learning_rate'] = 0.001 
+learner_params['learning_rate'] = 0.0001 
 learner_params['batch_size'] = 64 #
 learner_params['training_epochs'] = 20 
 learner_params['seed_val'] = 1234
@@ -50,11 +50,11 @@ learner_params['display_step'] = 1
 
 sail_params = dict()
 sail_params['beta0'] = 0        #Initial beta (after iter 0)
-sail_params['k']     = 60       #Number of datapoints to collect per environment
-sail_params['N']     = 15       #number of SaIL iterations
+sail_params['k']     = 30       #Number of datapoints to collect per environment
+sail_params['N']     = 3       #number of SaIL iterations
 sail_params['T']     = 6000     #max episode length for training
-sail_params['Tv']    = 20000    #episode length for validation/testing
-sail_params['m']     = 50      #Number of training envs
+sail_params['Tv']    = 2000    #episode length for validation/testing
+sail_params['m']     = 30      #Number of training envs
 sail_params['mv']    = 10       #Number of validation envs
 
 
