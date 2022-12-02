@@ -30,13 +30,21 @@ class SupervisedRegressionNetwork():
         self.seed_val = params['seed_val']
 
     def initialize(self):
+        """
+        Initialize network with weights dependent on seed
+        """
         if not self.initialized:
             torch.random.manual_seed(self.seed_val)
+            np.random.seed(self.seed_val)
+            random.seed(self.seed_val)
             self.net = _SupervisedRegressionNetwork(self.input_size, self.output_size).to(DEVICE)
             self.initialized = True
             self.optimizer = torch.optim.RMSprop(self.net.parameters(), lr=self.learning_rate)
             self.loss_function = nn.MSELoss()
     def create_network(self):
+        """
+        Kept for legacy reasons. initialize() should create the network entirely
+        """
         pass
 
     def train(self, database):
@@ -63,17 +71,26 @@ class SupervisedRegressionNetwork():
         pass
 
     def get_heuristic(self, features):
+        """
+        Returns a single heuristic value corresponding to a single input
+        """
         x = torch.unsqueeze(self._to_tensor(features), 0)
         with torch.no_grad():
             out = self.net(x)
         return self._to_numpy(out).item()
 
     def save_params(self, file_name):
+        """
+        Will save file as "file_name.weights"
+        """
         weights_file_name = "{}.weights".format(file_name)
         torch.save(self.net.state_dict(), weights_file_name)
         print("Model saved in file: %s" % weights_file_name)
 
     def load_params(self, file_name):
+        """
+        Will load file "file_name.weights"
+        """
         weights_file_name = "{}.weights".format(file_name)
         self.net.load_state_dict(torch.load(weights_file_name))
         print('Weights loaded from file %s'%weights_file_name)
@@ -82,6 +99,15 @@ class SupervisedRegressionNetwork():
         return [param for param in self.net.parameters(True)]
 
     def set_params(self, input_params):
+        """
+        Input should be a list of ndarray with elements
+        0: W1 shape (input, l1)
+        1: b1 shape (l1,)
+        2: W2 shape(l1, l2)
+        3: b2 shape (l2)
+        4: W3 shape (l2, output)
+        5: b3 shape (output,)
+        """
         for idx, param in enumerate(self.net.parameters(True)):
             param.data = nn.parameter.Parameter(self._to_tensor(input_params[idx].T))
         
