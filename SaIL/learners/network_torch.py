@@ -19,7 +19,8 @@ class _SupervisedRegressionNetwork(nn.Module):
         return out
 
 class SupervisedRegressionNetwork():
-    def __init__(self, params):    
+    def __init__(self, params):
+        self.use_image_patch = False    
         self.initialized=False
         self.output_size = params['output_size']
         self.input_size = params['input_size']
