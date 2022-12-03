@@ -49,6 +49,8 @@ learner_params['training_epochs'] = 20
 learner_params['seed_val'] = 1234
 learner_params['mode'] = "cpu"
 learner_params['display_step'] = 1
+learner_params['use_image_patch'] = True
+learner_params['patch_size'] = 5
 
 sail_params = dict()
 sail_params['beta0'] = 0        #Initial beta (after iter 0)
@@ -56,8 +58,8 @@ sail_params['k']     = 60       #Number of datapoints to collect per environment
 sail_params['N']     = 15       #number of SaIL iterations
 sail_params['T']     = 6000     #max episode length for training
 sail_params['Tv']    = 20000    #episode length for validation/testing
-sail_params['m']     = 50      #Number of training envs
-sail_params['mv']    = 10       #Number of validation envs
+sail_params['m']     = 5      #Number of training envs
+sail_params['mv']    = 2      #Number of validation envs
 
 
 def run_training(train_folder, train_oracle_folder, validation_folder, validation_oracle_folder, model_folder, results_folder, file_start_num_train, file_start_num_valid, pretrained_model, oracle_file_type):

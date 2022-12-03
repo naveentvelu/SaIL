@@ -16,7 +16,7 @@ import os
 from planning_python.data_structures import PlanningProblem
 from planning_python.environment_interface import Env2D
 from SaIL.planners import TrainPlanner, TestPlanner
-from SaIL.learners import SupervisedRegressionNetwork
+from SaIL.learners import SupervisedRegressionNetwork, SupervisedCnn
 from SaIL.oracle import Oracle
 
 
@@ -36,7 +36,11 @@ class SaILAgent():
     self.e = Env2D()
     self.oracle = Oracle()
     self.cost_fn = cost_fn
-    self.heuristic_fn = SupervisedRegressionNetwork(learner_params)
+    use_img_patch = learner_params['use_image_patch'] # Using Image Patch (CNN) or not
+    if not use_img_patch:
+      self.heuristic_fn = SupervisedRegressionNetwork(learner_params)
+    else:
+      self.heuristic_fn = SupervisedCnn(learner_params)
     self.lattice = lattice
     self.lattice.precalc_costs(self.cost_fn)
     self.train_planner = TrainPlanner()
