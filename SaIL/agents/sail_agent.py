@@ -16,8 +16,9 @@ import os
 from planning_python.data_structures import PlanningProblem
 from planning_python.environment_interface import Env2D
 from SaIL.planners import TrainPlanner, TestPlanner
-from SaIL.learners import SupervisedRegressionNetwork, SupervisedCnn
+from SaIL.learners import SupervisedRegressionNetwork
 from SaIL.oracle import Oracle
+import json
 
 
 class SaILAgent():
@@ -36,11 +37,7 @@ class SaILAgent():
     self.e = Env2D()
     self.oracle = Oracle()
     self.cost_fn = cost_fn
-    use_img_patch = learner_params['use_image_patch'] # Using Image Patch (CNN) or not
-    if not use_img_patch:
-      self.heuristic_fn = SupervisedRegressionNetwork(learner_params)
-    else:
-      self.heuristic_fn = SupervisedCnn(learner_params)
+    self.heuristic_fn = SupervisedRegressionNetwork(learner_params)
     self.lattice = lattice
     self.lattice.precalc_costs(self.cost_fn)
     self.train_planner = TrainPlanner()
@@ -51,11 +48,12 @@ class SaILAgent():
     self.goal = goal
     self.start_n = self.lattice.state_to_node(self.start)
     self.goal_n = self.lattice.state_to_node(self.goal)
+    self.output_file_str = "train_iter_" + str(sail_params['N']) + "_features_" + str(learner_params['input_size']) + "_num_train_envs_" + str(sail_params['m'])+ "_num_valid_envs_" + str(sail_params['mv'])
+
 
   def run_training(self, train_folder, train_oracle_folder, validation_folder, validation_oracle_folder, model_folder, file_start_num_train, file_start_num_valid,
                                                                                                         pretrained_model, visualize_train, visualize_validation, oracle_file_type="json"):
     #Runs the SaIL training loop for N
-    
     results = dict()
     results['train_loss_per_iter'] = []
     results['validation_loss_per_iter'] = []
@@ -64,20 +62,20 @@ class SaILAgent():
     results['avg_path_cost_per_iter'] = []
     results['num_solved_per_iter'] = []
     results['dataset_size_per_iter'] = []
-    results['train_loss_hist'] = []
-
     agg_dataset = []
 
     min_expansions_so_far = np.inf #We will save the best performing learner
     env_name = os.path.split(os.path.split(os.path.abspath(train_folder))[0])[1]
+    print(env_name)
+    self.results_folder = f"../SaIL/results/xy/{env_name}"
     env_folder = os.path.split(os.path.abspath(train_folder))[1]
     self.heuristic_fn.initialize()
     if pretrained_model:
       print('Found pretrained model')
       self.heuristic_fn.load_params(pretrained_model)
     for i in range(self.N):
-      # curr_beta = (self.beta0)**i #curr_beta = 1 for 0th iteration (expert only), then decayed exponentially based on beta0
-      curr_beta = 0
+      curr_beta = (self.beta0)**i #curr_beta = beta0 for 0th iteration (expert only), then decayed exponentially based on beta0
+      # curr_beta = 0
       iter_expansions = 0
     
 
@@ -93,6 +91,7 @@ class SaILAgent():
         # try:
         path, path_cost, curr_expansions, plan_time, _, _, _, dataset = self.train_planner.plan(self.oracle, curr_beta, self.k, self.T)
         agg_dataset += dataset #add data to meta dataset
+        print(f"j = {j}, len(dataset) = {len(dataset)}")
         # except ValueError:
         #   continue
         self.train_planner.clear_planner()
@@ -101,22 +100,28 @@ class SaILAgent():
         print('[Training Iter: %d, Environment Number: %d, results]: Path Cost %f, Number of Expansions %f, Planning Time %f'%(i, j, path_cost, curr_expansions, plan_time))
       
       results['dataset_size_per_iter'].append(len(agg_dataset))
-      avg_loss_train, train_loss_hist = self.heuristic_fn.train(agg_dataset) #Regression loss in this iteration of training
-      avg_path_cost, iter_expansions, avg_time_taken, num_solved, avg_loss_valid = self.run_validation(validation_folder, validation_oracle_folder, file_start_num_valid, visualize_validation, oracle_file_type) #True task loss on validation set
+      avg_loss_train = self.heuristic_fn.train(agg_dataset) #Regression loss in this iteration of training
+      if i>=0:
+        avg_path_cost, iter_expansions, avg_time_taken, num_solved, avg_loss_valid = self.run_validation(validation_folder, validation_oracle_folder, file_start_num_valid, visualize_validation, oracle_file_type) #True task loss on validation set
+        
+        print('Iter %d. Beta = %f; Task Loss = %f; Avg Time Taken = %f'%(i, curr_beta, iter_expansions, avg_time_taken))
+        if iter_expansions <= min_expansions_so_far:  
+          print('Saving Current Policy. Iteration %d. Task Loss: %f. Best so far: %f'%(i, iter_expansions, min_expansions_so_far))
+          self.heuristic_fn.save_params(model_folder)
+          min_expansions_so_far = iter_expansions
+      else:
+        avg_path_cost, iter_expansions, avg_time_taken, num_solved, avg_loss_valid = None, None, None, None, None
       
-      print('Iter %d. Beta = %f; Task Loss = %f; Avg Time Taken = %f'%(i, curr_beta, iter_expansions, avg_time_taken))
-      if iter_expansions <= min_expansions_so_far:  
-        print('Saving Current Policy. Iteration %d. Task Loss: %f. Best so far: %f'%(i, iter_expansions, min_expansions_so_far))
-        self.heuristic_fn.save_params(model_folder)
-        min_expansions_so_far = iter_expansions
-
       results['train_loss_per_iter'].append(avg_loss_train)
       results['validation_loss_per_iter'].append(avg_loss_valid)
       results['avg_path_cost_per_iter'].append(avg_path_cost)
       results['avg_expansions_per_iter'].append(iter_expansions)
       results['avg_time_per_iter'].append(avg_time_taken) 
       results['num_solved_per_iter'].append(num_solved)
-      results['train_loss_hist'].append(train_loss_hist)
+      results_path = os.path.join(os.path.abspath(self.results_folder), self.output_file_str)
+      print("storing results at ", results_path)
+      json.dump(results, open(os.path.join(os.path.abspath(self.results_folder), self.output_file_str), 'w'), sort_keys=True)
+      print('Results dumped')
 
     return results
 
