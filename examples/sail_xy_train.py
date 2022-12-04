@@ -11,8 +11,6 @@ import pprint
 import sys
 sys.path.insert(0, "../../planning_python")
 sys.path.insert(0, "..")
-sys.path.insert(0, "SaIL")
-sys.path.insert(0, "planning_python")
 import matplotlib.pyplot as plt
 import numpy as np
 from SaIL.agents import SaILAgent
@@ -49,23 +47,22 @@ learner_params['training_epochs'] = 20
 learner_params['seed_val'] = 1234
 learner_params['mode'] = "cpu"
 learner_params['display_step'] = 1
-learner_params['use_image_patch'] = True
-learner_params['patch_size'] = 5
 
 sail_params = dict()
-sail_params['beta0'] = 0        #Initial beta (after iter 0)
-sail_params['k']     = 60       #Number of datapoints to collect per environment
+# sail_params['beta0'] = 0        #Initial beta (after iter 0)
+sail_params['beta0'] = 0.7        #setting value according to paper
+sail_params['k']     = 50       #Number of datapoints to collect per environment
 sail_params['N']     = 15       #number of SaIL iterations
-sail_params['T']     = 6000     #max episode length for training
+sail_params['T']     = 1100     #max episode length for training
 sail_params['Tv']    = 20000    #episode length for validation/testing
-sail_params['m']     = 5      #Number of training envs
-sail_params['mv']    = 2      #Number of validation envs
+sail_params['m']     = 200      #Number of training envs
+sail_params['mv']    = 70       #Number of validation envs
 
 
 def run_training(train_folder, train_oracle_folder, validation_folder, validation_oracle_folder, model_folder, results_folder, file_start_num_train, file_start_num_valid, pretrained_model, oracle_file_type):
   global sail_params, env_params, learner_params, lattice, cost_fn, start, goal, visualize_train, visualize_validation
   env_name = os.path.split(os.path.split(os.path.abspath(train_folder))[0])[1]
-  output_file_str = "train_iter_" + str(sail_params['N']) + "_features_" + str(learner_params['input_size']) + "_num_train_envs_" + str(sail_params['m'])+ "_num_valid_envs_" + str(sail_params['mv']) + '.json'
+  output_file_str = "train_iter_" + str(sail_params['N']) + "_features_" + str(learner_params['input_size']) + "_num_train_envs_" + str(sail_params['m'])+ "_num_valid_envs_" + str(sail_params['mv'])
   model_folder = os.path.join(os.path.abspath(model_folder), output_file_str)
   if not os.path.exists(results_folder):
     os.makedirs(results_folder)
