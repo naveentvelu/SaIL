@@ -125,7 +125,7 @@ class SaILAgent():
 
     return results
 
-  def run_validation(self, validation_folder, validation_oracle_folder, file_start_num_valid, visualize_validation, oracle_file_type="json"):
+  def run_validation(self, validation_folder, validation_oracle_folder, file_start_num_valid, visualize_validation, oracle_file_type="json", is_test=False):
     """Runs validation on validation environments and returns average loss"""
     print('Running validation')
     avg_path_cost = 0
@@ -143,8 +143,12 @@ class SaILAgent():
       self.prob.initialize(self.e, self.lattice, self.cost_fn, self.heuristic_fn, self.start_n, self.goal_n, visualize= visualize_validation)
       self.test_planner.initialize(self.prob)
       try:
-        path, path_cost, curr_expansions, plan_time, came_from, cost_so_far, c_obs, avg_episode_loss= self.test_planner.plan(self.oracle, self.Tv)
-        print('[Validation Environment Number: %d, results]: Path Cost %f, Number of Expansions %f, Planning Time %f'%(j, path_cost, curr_expansions, plan_time))
+        if is_test:
+          path, path_cost, curr_expansions, plan_time, came_from, cost_so_far, c_obs, avg_episode_loss, violations = self.test_planner.plan(self.oracle, self.Tv, is_test)
+          print('[Validation Environment Number: %d, results]: Path Cost %f, Number of Expansions %f, Planning Time %f'%(j, path_cost, curr_expansions, plan_time))
+        else: 
+          path, path_cost, curr_expansions, plan_time, came_from, cost_so_far, c_obs, avg_episode_loss= self.test_planner.plan(self.oracle, self.Tv)
+          print('[Validation Environment Number: %d, results]: Path Cost %f, Number of Expansions %f, Planning Time %f'%(j, path_cost, curr_expansions, plan_time))
         if path_cost < np.inf:
           num_solved += 1
         avg_path_cost += path_cost
@@ -156,24 +160,30 @@ class SaILAgent():
         continue          
       self.test_planner.clear_planner()
       self.e.clear()
-      self.oracle.clear()      
-    print('Done validation')
+      self.oracle.clear()
+    if is_test:
+      print("Done Test")      
+    else:
+      print('Done validation')
     legit_envs = self.mv - num_unsovable
     avg_expansions /= self.mv
     avg_path_cost /= self.mv
     avg_time_taken /= self.mv
     avg_loss /= self.mv
     
+    if is_test:
+      return avg_path_cost, avg_expansions, avg_time_taken, num_solved, avg_loss, violations
     return avg_path_cost, avg_expansions, avg_time_taken, num_solved, avg_loss
 
   def run_test(self, test_folder, test_oracle_folder, file_start_num_test, model_file, visualize_test, oracle_file_type='json'):
     test_results = dict()
     self.heuristic_fn.initialize()
     self.heuristic_fn.load_params(model_file)
-    avg_path_cost, avg_expansions, avg_time_taken, num_solved, avg_loss = self.run_validation(test_folder, test_oracle_folder, file_start_num_test, visualize_test, oracle_file_type)
+    avg_path_cost, avg_expansions, avg_time_taken, num_solved, avg_loss, violations = self.run_validation(test_folder, test_oracle_folder, file_start_num_test, visualize_test, oracle_file_type, True)
     test_results['avg_path_cost'] = avg_path_cost
     test_results['avg_expansions'] = avg_expansions
     test_results['avg_time_taken'] = avg_time_taken
     test_results['num_solved'] = num_solved
     test_results['avg_loss'] = avg_loss
+    test_results['violations'] = violations
     return test_results

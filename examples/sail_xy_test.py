@@ -48,13 +48,14 @@ learner_params['display_step'] = 5
 
 
 sail_params = dict()
-sail_params['beta0'] = 0        #Initial beta (after iter 0)
+# sail_params['beta0'] = 0        #Initial beta (after iter 0)
+sail_params['beta0'] = 0.7        #setting value according to paper
 sail_params['k']     = 60       #Number of datapoitns to collect per environment
-sail_params['N']     = 1        #number of SaIL iterations
-sail_params['T']     = 2000     #max episode length for training
+sail_params['N']     = 3        #number of SaIL iterations
+sail_params['T']     = 1100     #max episode length for training
 sail_params['Tv']    = 20000    #episode length for validation/testing
-sail_params['m']     = 20      #Number of training envs
-sail_params['mv']    = 20       #Number of validation envs
+sail_params['m']     = 200      #Number of training envs
+sail_params['mv']    = 100       #Number of testing envs
 
 
 def run_benchmark(test_folders, test_oracle_folders, model_files, result_folders, num_envs, test_file_start_num, visualize=False, oracle_file_type="json"):
@@ -63,6 +64,36 @@ def run_benchmark(test_folders, test_oracle_folders, model_files, result_folders
   for (i,folder) in enumerate(test_folders):
     agent = SaILAgent(sail_params, env_params, learner_params, lattice, cost_fn, start, goal)
     env_results = agent.run_test(folder, test_oracle_folders[i], test_file_start_num, model_files[i], visualize, oracle_file_type)
+    
+    # Inferencing the env results
+    violations = env_results['violations']
+    
+    admissibility_count = 0
+    admissibility_mag = 0
+    monotonicity_count = 0
+    monotonicity_mag = 0
+    tot = len(violations)
+
+    for element in violations:
+      h_p, orc_h_p, h_c, cost = element
+
+      # Admissibility
+      if h_p > orc_h_p:
+        admissibility_count += 1
+        admissibility_mag += (h_p - orc_h_p)
+
+      # Monotonicity
+      if h_p - h_c > cost:
+        monotonicity_count += 1
+        monotonicity_mag += (h_p - h_c - cost)
+    
+    env_results['admissibility_count'] = admissibility_count
+    env_results['admissibility_mag'] = admissibility_mag
+    env_results['admissibility_vio_percent'] = (admissibility_count / tot) * 100
+    env_results['monotonicity_count'] = monotonicity_count
+    env_results['monotonicity_mag'] = monotonicity_mag
+    env_results['monotonicity_vio_percent'] = (monotonicity_count / tot) * 100
+    
     output_file = "test_" + "iter_" + str(sail_params['N']) + "_features_" + str(learner_params['input_size']) + "_num_test_envs_" + str(sail_params['mv'])
     pp.pprint(env_results)
     json.dump(env_results, open(os.path.join(os.path.abspath(result_folders[i]), output_file), 'w'), sort_keys=True)

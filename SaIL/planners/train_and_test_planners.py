@@ -7,6 +7,8 @@ from planning_python.data_structures.priority_queue import PriorityQueue
 from planning_python.planners import SearchBasedPlanner
 from SaIL.planners import SaILPlanner
 
+np.random.seed(0)
+
 class TrainPlanner(SaILPlanner):
   def __init__(self):
     """Planner takes as input a planning problem object and returns
@@ -111,7 +113,7 @@ class TestPlanner(SaILPlanner):
     
     super(TestPlanner, self).__init__()
 
-  def plan(self, oracle, max_expansions = 100000):
+  def plan(self, oracle, max_expansions = 100000, is_test=False):
     assert self.initialized == True, "Planner has not been initialized properly. Please call initialize or reset_problem function before plan function"
     start_t = time.time()
     
@@ -128,6 +130,7 @@ class TestPlanner(SaILPlanner):
     path =[]
     path_cost = np.inf
     dataset = []
+    violations = []
 
     while not self.frontier.empty():
       #Check 1: Stop search if frontier gets too large
@@ -141,7 +144,9 @@ class TestPlanner(SaILPlanner):
       
       #Step 1: Pop the best node (according to the learner's policy)
       h, curr_node = self.policy()
-      avg_loss += math.pow(h - oracle.get_optimal_q(curr_node), 2)
+      h_curr_node = h
+      orc_h_curr_node = oracle.get_optimal_q(curr_node)
+      avg_loss += math.pow(h - orc_h_curr_node, 2)
       if curr_node in self.visited:
         continue
 
@@ -171,8 +176,16 @@ class TestPlanner(SaILPlanner):
             print ("Found goal")
             found_goal = True
             break
-          #append to frontier
+          # append to frontier
           h_val = self.get_heuristic(neighbor, self.goal_node)
+
+          if is_test:
+            if type(h_curr_node) is np.ndarray:
+              h_curr_node = h_curr_node.item()
+            if type(h_val) is np.ndarray:
+              h_val = h_val.item()
+            violations.append([h_curr_node, orc_h_curr_node, h_val, edge_costs[i]])
+          
           self.frontier.put(neighbor, h_val)
 
       if found_goal: break
@@ -185,6 +198,9 @@ class TestPlanner(SaILPlanner):
     avg_loss/= (2*curr_expansions)
     avg_loss = np.sqrt(avg_loss)
 
+    if is_test:
+      return path, path_cost, curr_expansions, plan_time, self.came_from, self.cost_so_far, self.c_obs, avg_loss, violations
+     
     return path, path_cost, curr_expansions, plan_time, self.came_from, self.cost_so_far, self.c_obs, avg_loss
 
 
