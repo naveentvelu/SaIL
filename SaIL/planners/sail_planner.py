@@ -42,7 +42,10 @@ class SaILPlanner(SearchBasedPlanner):
     print('Planner Initialized')
 
   def get_features(self, node):
-    """Calculates features for the node give the current state of the search"""  
+    """
+    Calculates features for the node give the current state of the search
+    If using image patch, a two-item list containing (features, patch) is returned
+    """  
   
     s = self.lattice.node_to_state(node)
     goal_s = self.lattice.node_to_state(self.goal_node)
@@ -104,7 +107,13 @@ class SaILPlanner(SearchBasedPlanner):
         env_features =   np.array([-1]*(3 + (self.lattice.ndims*3)), dtype=np.float32) #-1 for all obstacles
         feature_arr = np.concatenate((feature_arr, env_features))
 
-    return feature_arr
+    if self.is_using_image_patch():
+      output = [feature_arr]
+      output.append(self.get_image_patch_as_feature(node))
+    else:
+      output = feature_arr
+
+    return output
 
   def get_heuristic(self, node1, node2):
     """Requires a heuristic function that goes works off of feature"""

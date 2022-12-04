@@ -5,22 +5,44 @@ import torch.nn.functional as F
 import random
 from utils import DEVICE
 
-class _SupervisedRegressionNetwork(nn.Module):
-    def __init__(self, input_size, output_size):
+class _SupervisedCnn(nn.Module):
+    def __init__(self, input_size, output_size, patch_size):
         super().__init__()
         self.fc1 = nn.Linear(input_size, 100)
         self.fc2 = nn.Linear(100, 50)
-        self.fc3 = nn.Linear(50, output_size)
+
+        # CNN Parameters
+        IN_CH = 3
+        KERNEL_SIZE = 3
+        STRIDE = 2
+        PADDING = 2
+        CH1 = 6
+        CH2 = 10
+        INTERMEDIATE_OUTPUT_SHAPE = CH2 * (patch_size - 2) * (patch_size - 2)
+        CNN_OUT_SIZE = 50
+
+        self.cnn1 = nn.Conv2d(IN_CH, CH1, KERNEL_SIZE, STRIDE, PADDING)
+        self.cnn2 = nn.Conv2d(CH1, CH2, KERNEL_SIZE, STRIDE, PADDING)
+        self.cnn_linear = nn.Linear(INTERMEDIATE_OUTPUT_SHAPE, CNN_OUT_SIZE)
+
+        self.final_linear = nn.Linear(50 + CNN_OUT_SIZE, output_size)
         
-    def forward(self, x):
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        out = self.fc3(x)
+    def forward(self, x_linear, patch):
+        x_linear = F.relu(self.fc1(x_linear))
+        x_linear = F.relu(self.fc2(x_linear))
+        x_cnn = F.relu(self.cnn1(patch))
+        x_cnn = F.relu(self.cnn2(x_cnn))
+        x_cnn = x_cnn.view(x_cnn.shape[0], -1)
+        x_cnn = F.relu(self.cnn_linear(x_cnn))
+        out = torch.cat([x_linear, x_cnn], 1)
+        out = self.final_linear(out)
         return out
 
-class SupervisedRegressionNetwork():
+class SupervisedCnn():
     def __init__(self, params):
-        self.use_image_patch = False    
+        DEFAULT_PATCH_SIZE = 5
+
+        self.use_image_patch = True
         self.initialized=False
         self.output_size = params['output_size']
         self.input_size = params['input_size']
@@ -29,6 +51,7 @@ class SupervisedRegressionNetwork():
         self.training_epochs = params['training_epochs']
         self.display_step = params['display_step']
         self.seed_val = params['seed_val']
+        self.patch_size = params['patch_size'] if 'patch_size' in params else DEFAULT_PATCH_SIZE
 
     def initialize(self):
         """
@@ -38,7 +61,7 @@ class SupervisedRegressionNetwork():
             torch.random.manual_seed(self.seed_val)
             np.random.seed(self.seed_val)
             random.seed(self.seed_val)
-            self.net = _SupervisedRegressionNetwork(self.input_size, self.output_size).to(DEVICE)
+            self.net = _SupervisedCnn(self.input_size, self.output_size, self.patch_size).to(DEVICE)
             self.initialized = True
             self.optimizer = torch.optim.RMSprop(self.net.parameters(), lr=self.learning_rate)
             self.loss_function = nn.MSELoss()
@@ -57,8 +80,8 @@ class SupervisedRegressionNetwork():
             total_batch = int(len(database)/self.batch_size)
             avg_loss = 0
             for idx in range(total_batch):
-                batch_x, batch_y = self._get_next_batch(database, idx)
-                loss = self._single_pass(batch_x, batch_y)
+                batch_x, batch_patch, batch_y = self._get_next_batch(database, idx)
+                loss = self._single_pass(batch_x, batch_patch, batch_y)
                 # TODO: Fix this weird loss statistics
                 avg_loss += loss / total_batch
             if epoch_idx % self.display_step == 0:
@@ -75,9 +98,12 @@ class SupervisedRegressionNetwork():
         """
         Returns a single heuristic value corresponding to a single input
         """
+        patch = features[1]
+        features = features[0]
         x = torch.unsqueeze(self._to_tensor(features), 0)
+        patch = torch.unsqueeze(self._to_tensor(patch), 0)
         with torch.no_grad():
-            out = self.net(x)
+            out = self.net(x, patch)
         return self._to_numpy(out).item()
 
     def save_params(self, file_name):
@@ -123,16 +149,17 @@ class SupervisedRegressionNetwork():
 
     def _get_next_batch(self, database, i):
         batch = database[i*self.batch_size: (i+1)*self.batch_size]
-        batch_x = np.array([_[0] for _ in batch])
+        batch_x = np.array([_[0][0] for _ in batch])
+        batch_patch = np.array([_[0][1] for _ in batch])
         batch_y = np.array([_[1] for _ in batch])
         new_shape_ip = [self.batch_size] + [self.input_size]
         new_shape_op = [self.batch_size] + [self.output_size]
         batch_x = batch_x.reshape(new_shape_ip)  
         batch_y = batch_y.reshape(new_shape_op)
-        return batch_x, batch_y
+        return batch_x, batch_patch, batch_y
     
-    def _single_pass(self, x, y):
-        out = self.net(self._to_tensor(x))
+    def _single_pass(self, x, patch, y):
+        out = self.net(self._to_tensor(x), self._to_tensor(patch))
         self.optimizer.zero_grad()
         loss = self.loss_function(out, self._to_tensor(y))
         loss.backward()
