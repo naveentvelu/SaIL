@@ -11,6 +11,8 @@ import pprint
 import sys
 sys.path.insert(0, "../../planning_python")
 sys.path.insert(0, "..")
+sys.path.insert(0, "SaIL")
+sys.path.insert(0, "planning_python")
 import matplotlib.pyplot as plt
 import numpy as np
 from SaIL.agents import SaILAgent
