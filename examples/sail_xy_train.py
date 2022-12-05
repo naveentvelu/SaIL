@@ -49,6 +49,8 @@ learner_params['training_epochs'] = 20
 learner_params['seed_val'] = 1234
 learner_params['mode'] = "cpu"
 learner_params['display_step'] = 1
+learner_params['use_image_patch'] = False
+learner_params['patch_size'] = 5
 
 sail_params = dict()
 # sail_params['beta0'] = 0        #Initial beta (after iter 0)
