@@ -45,8 +45,6 @@ learner_params['training_epochs'] = 20 #Not used during testing
 learner_params['seed_val'] = 1234
 learner_params['mode'] = "gpu"
 learner_params['display_step'] = 5
-learner_params['use_image_patch'] = True
-learner_params['patch_size'] = 5
 
 
 sail_params = dict()

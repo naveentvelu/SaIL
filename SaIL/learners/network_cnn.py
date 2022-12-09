@@ -18,7 +18,7 @@ class _SupervisedCnn(nn.Module):
         PADDING = 2
         CH1 = 6
         CH2 = 10
-        INTERMEDIATE_OUTPUT_SHAPE = 160
+        INTERMEDIATE_OUTPUT_SHAPE = CH2 * (patch_size - 2) * (patch_size - 2)
         CNN_OUT_SIZE = 50
 
         self.cnn1 = nn.Conv2d(IN_CH, CH1, KERNEL_SIZE, STRIDE, PADDING)

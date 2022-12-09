@@ -18,13 +18,7 @@ import numpy as np
 from SaIL.agents import SaILAgent
 from planning_python.cost_functions import PathLengthNoAng
 from planning_python.state_lattices.common_lattice.xy_analytic_lattice import XYAnalyticLattice
-# for reproducibility
-SEED = 1
-import random
-random.seed(SEED)
-import torch
-torch.manual_seed(SEED)
-np.random.seed(SEED)
+
 
 x_lims = [0, 201]
 y_lims = [0, 201]
@@ -49,14 +43,14 @@ cost_fn = PathLengthNoAng()
 learner_params = dict()
 learner_params['output_size'] = 1 #regression
 learner_params['input_size'] = 17 #number of features
-learner_params['learning_rate'] = 0.0005 
+learner_params['learning_rate'] = 0.001 
 learner_params['batch_size'] = 64 #
 learner_params['training_epochs'] = 20 
 learner_params['seed_val'] = 1234
 learner_params['mode'] = "cpu"
 learner_params['display_step'] = 1
-learner_params['use_image_patch'] = True
-learner_params['patch_size'] = 9
+learner_params['use_image_patch'] = False
+learner_params['patch_size'] = 5
 
 sail_params = dict()
 # sail_params['beta0'] = 0        #Initial beta (after iter 0)
@@ -72,7 +66,7 @@ sail_params['mv']    = 70       #Number of validation envs
 def run_training(train_folder, train_oracle_folder, validation_folder, validation_oracle_folder, model_folder, results_folder, file_start_num_train, file_start_num_valid, pretrained_model, oracle_file_type):
   global sail_params, env_params, learner_params, lattice, cost_fn, start, goal, visualize_train, visualize_validation
   env_name = os.path.split(os.path.split(os.path.abspath(train_folder))[0])[1]
-  output_file_str = "train_iter_" + str(sail_params['N']) + "_features_" + str(learner_params['input_size']) + "_num_train_envs_" + str(sail_params['m'])+ "_num_valid_envs_" + str(sail_params['mv']) + '_patchsize_' + str(learner_params['patch_size']) + '_seed_' + str(SEED)
+  output_file_str = "train_iter_" + str(sail_params['N']) + "_features_" + str(learner_params['input_size']) + "_num_train_envs_" + str(sail_params['m'])+ "_num_valid_envs_" + str(sail_params['mv'])
   model_folder = os.path.join(os.path.abspath(model_folder), output_file_str)
   if not os.path.exists(results_folder):
     os.makedirs(results_folder)
