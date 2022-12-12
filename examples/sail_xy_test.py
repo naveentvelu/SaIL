@@ -17,6 +17,15 @@ from SaIL.agents import SaILAgent
 from planning_python.cost_functions import PathLengthNoAng
 from planning_python.state_lattices.common_lattice.xy_analytic_lattice import XYAnalyticLattice
 
+seed_val = 1
+import random
+random.seed(seed_val)
+import torch
+torch.manual_seed(seed_val)
+np.random.seed(seed_val)
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
+tf.compat.v1.set_random_seed(seed_val)
 
 x_lims = [0, 201]
 y_lims = [0, 201]
@@ -45,7 +54,9 @@ learner_params['training_epochs'] = 20 #Not used during testing
 learner_params['seed_val'] = 1234
 learner_params['mode'] = "gpu"
 learner_params['display_step'] = 5
-
+learner_params['reg_alpha'] = 0
+learner_params['reg_beta'] = 0
+learner_params['reg_gamma'] = 0
 
 sail_params = dict()
 # sail_params['beta0'] = 0        #Initial beta (after iter 0)
@@ -94,8 +105,10 @@ def run_benchmark(test_folders, test_oracle_folders, model_files, result_folders
     env_results['monotonicity_mag'] = monotonicity_mag
     env_results['monotonicity_vio_percent'] = (monotonicity_count / tot) * 100
     
-    output_file = "test_" + "iter_" + str(sail_params['N']) + "_features_" + str(learner_params['input_size']) + "_num_test_envs_" + str(sail_params['mv'])
+    output_file = "test_" + "iter_" + str(sail_params['N']) + "_features_" + str(learner_params['input_size']) + "_num_test_envs_" + str(sail_params['mv']) + "_reg_" + str(learner_params['reg_alpha']) + "_seed_" + str(seed_val)
     pp.pprint(env_results)
+    if not os.path.exists(result_folders[i]):
+      os.makedirs(result_folders[i])
     json.dump(env_results, open(os.path.join(os.path.abspath(result_folders[i]), output_file), 'w'), sort_keys=True)
 
 

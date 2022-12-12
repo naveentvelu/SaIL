@@ -31,6 +31,9 @@ class SaILAgent():
     self.m     = sail_params['m']     #Number of training envs
     self.mv    = sail_params['mv']    #Number of validation envs
     self.env_params = env_params
+    self.alpha = learner_params['reg_alpha']
+    self.beta = learner_params['reg_beta']
+    self.gamma = learner_params['reg_gamma']
 
     
     #planning related definitions
@@ -52,7 +55,7 @@ class SaILAgent():
     self.goal = goal
     self.start_n = self.lattice.state_to_node(self.start)
     self.goal_n = self.lattice.state_to_node(self.goal)
-    self.output_file_str = "train_iter_" + str(sail_params['N']) + "_features_" + str(learner_params['input_size']) + "_num_train_envs_" + str(sail_params['m'])+ "_num_valid_envs_" + str(sail_params['mv'])
+    self.output_file_str = "train_iter_" + str(sail_params['N']) + "_features_" + str(learner_params['input_size']) + "_num_train_envs_" + str(sail_params['m'])+ "_num_valid_envs_" + str(sail_params['mv']) + "_reg_" + str(learner_params['reg_alpha'])
 
 
   def run_training(self, train_folder, train_oracle_folder, validation_folder, validation_oracle_folder, model_folder, file_start_num_train, file_start_num_valid,

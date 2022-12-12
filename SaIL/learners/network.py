@@ -25,6 +25,9 @@ class SupervisedRegressionNetwork():
     # print self.summary_dir_train
     self.seed_val = params['seed_val']
     self.input_shape = [self.input_size]
+    self.reg_alpha = params['reg_alpha']
+    self.reg_beta = params['reg_beta']
+    self.reg_gamma = params['reg_gamma']
     
     if params['mode'] == "gpu":
       self.device = '/gpu:0'
@@ -69,7 +72,9 @@ class SupervisedRegressionNetwork():
     state_input, output = self.create_network()
     network_params = tf.trainable_variables()
     target = tf.placeholder(tf.float32, [None] + [self.output_size])
-    cost = tf.reduce_sum(tf.pow(output - target, 2))/(2*self.batch_size)
+    cost = (tf.reduce_sum(tf.pow(output - target, 2))/(2*self.batch_size)) \
+    + (self.reg_alpha * (tf.reduce_sum(tf.nn.relu(output - target))) / (2*self.batch_size)) \
+    + (self.reg_beta * (tf.reduce_sum(tf.nn.relu(output))) / (2*self.batch_size))
     optimizer = tf.train.RMSPropOptimizer(learning_rate = self.learning_rate)
     train_net = optimizer.minimize(cost, var_list = network_params)
     saver = tf.train.Saver()

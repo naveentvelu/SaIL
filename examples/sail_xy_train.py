@@ -19,6 +19,16 @@ from SaIL.agents import SaILAgent
 from planning_python.cost_functions import PathLengthNoAng
 from planning_python.state_lattices.common_lattice.xy_analytic_lattice import XYAnalyticLattice
 
+seed_val = 1
+import random
+random.seed(seed_val)
+import torch
+torch.manual_seed(seed_val)
+np.random.seed(seed_val)
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
+tf.compat.v1.set_random_seed(seed_val)
+
 
 x_lims = [0, 201]
 y_lims = [0, 201]
@@ -51,6 +61,9 @@ learner_params['mode'] = "cpu"
 learner_params['display_step'] = 1
 learner_params['use_image_patch'] = False
 learner_params['patch_size'] = 5
+learner_params['reg_alpha'] = 0
+learner_params['reg_beta'] = 0
+learner_params['reg_gamma'] = 0
 
 sail_params = dict()
 # sail_params['beta0'] = 0        #Initial beta (after iter 0)
@@ -66,7 +79,7 @@ sail_params['mv']    = 70       #Number of validation envs
 def run_training(train_folder, train_oracle_folder, validation_folder, validation_oracle_folder, model_folder, results_folder, file_start_num_train, file_start_num_valid, pretrained_model, oracle_file_type):
   global sail_params, env_params, learner_params, lattice, cost_fn, start, goal, visualize_train, visualize_validation
   env_name = os.path.split(os.path.split(os.path.abspath(train_folder))[0])[1]
-  output_file_str = "train_iter_" + str(sail_params['N']) + "_features_" + str(learner_params['input_size']) + "_num_train_envs_" + str(sail_params['m'])+ "_num_valid_envs_" + str(sail_params['mv'])
+  output_file_str = "train_iter_" + str(sail_params['N']) + "_features_" + str(learner_params['input_size']) + "_num_train_envs_" + str(sail_params['m'])+ "_num_valid_envs_" + str(sail_params['mv']) + "_reg_" + str(learner_params['reg_alpha']) + "_seed_" + str(seed_val)
   model_folder = os.path.join(os.path.abspath(model_folder), output_file_str)
   if not os.path.exists(results_folder):
     os.makedirs(results_folder)
