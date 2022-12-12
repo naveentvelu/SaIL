@@ -16,7 +16,13 @@ import numpy as np
 from SaIL.agents import SaILAgent
 from planning_python.cost_functions import PathLengthNoAng
 from planning_python.state_lattices.common_lattice.xy_analytic_lattice import XYAnalyticLattice
-
+# for reproducibility
+SEED = 3
+import random
+random.seed(SEED)
+import torch
+torch.manual_seed(SEED)
+np.random.seed(SEED)
 
 x_lims = [0, 201]
 y_lims = [0, 201]
@@ -42,11 +48,11 @@ learner_params['input_size'] = 17 #number of features
 learner_params['learning_rate'] = 0.001 #not used during testing
 learner_params['batch_size'] = 64 #Not used during test
 learner_params['training_epochs'] = 20 #Not used during testing
-learner_params['seed_val'] = 1234
+learner_params['seed_val'] = 1233 + SEED
 learner_params['mode'] = "gpu"
 learner_params['display_step'] = 5
 learner_params['use_image_patch'] = True
-learner_params['patch_size'] = 5
+learner_params['patch_size'] = 9
 
 
 sail_params = dict()

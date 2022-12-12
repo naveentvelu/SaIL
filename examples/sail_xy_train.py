@@ -19,7 +19,7 @@ from SaIL.agents import SaILAgent
 from planning_python.cost_functions import PathLengthNoAng
 from planning_python.state_lattices.common_lattice.xy_analytic_lattice import XYAnalyticLattice
 # for reproducibility
-SEED = 1
+SEED = 3
 import random
 random.seed(SEED)
 import torch
@@ -52,11 +52,11 @@ learner_params['input_size'] = 17 #number of features
 learner_params['learning_rate'] = 0.0005 
 learner_params['batch_size'] = 64 #
 learner_params['training_epochs'] = 20 
-learner_params['seed_val'] = 1234
+learner_params['seed_val'] = 1233 + SEED
 learner_params['mode'] = "cpu"
 learner_params['display_step'] = 1
-learner_params['use_image_patch'] = True
-learner_params['patch_size'] = 9
+learner_params['use_image_patch'] = False
+learner_params['patch_size'] = 0
 
 sail_params = dict()
 # sail_params['beta0'] = 0        #Initial beta (after iter 0)

@@ -21,7 +21,7 @@ ORACLE_FOLDER_8="../SaIL/oracle/saved_oracles/xy/single_bugtrap/validation/"
 # MODEL_FILE_1="../SaIL/learners/trained_models/xy/alternating_gaps/200_70" #iter_7_features_17_num_train_envs_200_num_valid_envs_70"
 MODEL_FILE_1="../SaIL/learners/trained_models/xy/alternating_gaps/train_iter_15_features_17_num_train_envs_200_num_valid_envs_70_patchsize_5" # Naveen Change
 MODEL_FILE_2="../SaIL/learners/trained_models/xy/bugtrap_forest/"
-MODEL_FILE_3="../SaIL/learners/trained_models/xy/forest/200_50"
+MODEL_FILE_3="../SaIL/learners/trained_models/xy/forest/train_iter_15_features_17_num_train_envs_200_num_valid_envs_70_patchsize_9_seed_3"
 MODEL_FILE_4="../SaIL/learners/trained_models/xy/gaps_and_forest/iter_5_features_17_num_train_envs_200_num_valid_envs_70"
 MODEL_FILE_5="../SaIL/learners/trained_models/xy/mazes/200_70"
 MODEL_FILE_6="../SaIL/learners/trained_models/xy/multiple_bugtraps/train_iter_5_features_17_num_train_envs_200_num_valid_envs_70"
@@ -43,5 +43,5 @@ ORACLE_FILE_TYPE="json"
 FOLDER_INDEX=1
 
 
-python sail_xy_test.py --test_folders ${TEST_FOLDER_1} --test_oracle_folders ${ORACLE_FOLDER_1} --model_files ${MODEL_FILE_1} --result_folders ${RESULTS_FOLDER_1} --num_envs ${NUM_ENVS} --test_file_start_num ${TEST_FILE_START_NUM} --oracle_file_type ${ORACLE_FILE_TYPE}
+python sail_xy_test.py --test_folders ${TEST_FOLDER_3} --test_oracle_folders ${ORACLE_FOLDER_3} --model_files ${MODEL_FILE_3} --result_folders ${RESULTS_FOLDER_3} --num_envs ${NUM_ENVS} --test_file_start_num ${TEST_FILE_START_NUM} --oracle_file_type ${ORACLE_FILE_TYPE}
 
