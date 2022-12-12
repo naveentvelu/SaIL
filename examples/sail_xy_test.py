@@ -65,10 +65,10 @@ sail_params = dict()
 sail_params['beta0'] = 0.7        #setting value according to paper
 sail_params['k']     = 60       #Number of datapoitns to collect per environment
 sail_params['N']     = 3        #number of SaIL iterations
-sail_params['T']     = 11     #max episode length for training
-sail_params['Tv']    = 20    #episode length for validation/testing
-sail_params['m']     = 2      #Number of training envs
-sail_params['mv']    = 10       #Number of testing envs
+sail_params['T']     = 1100     #max episode length for training
+sail_params['Tv']    = 20000    #episode length for validation/testing
+sail_params['m']     = 200      #Number of training envs
+sail_params['mv']    = 100       #Number of testing envs
 
 
 def run_benchmark(test_folders, test_oracle_folders, model_files, result_folders, num_envs, test_file_start_num, visualize=False, oracle_file_type="json"):
